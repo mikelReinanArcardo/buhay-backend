@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 
 
 class RouteRequest(BaseModel):

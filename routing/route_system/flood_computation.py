@@ -1,19 +1,15 @@
 import asyncio
 from typing import Tuple, List
 import networkx as nx
-from rtree import index
 from shapely.geometry import Point
 from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor
 import osmnx as ox
 
-from global_variables import (
+from routing.global_variables import (
     get_flood_index,
     get_flooded_areas,
-    get_road_network_cache,
-    set_road_network_cache,
 )
-from general_computations import calculate_geodesic_distance
 
 
 @lru_cache(maxsize=10000)
@@ -78,33 +74,3 @@ def assign_edge_flood_risk(G: nx.Graph) -> None:
         u_risk = G.nodes[u].get("flood_risk", 0)
         v_risk = G.nodes[v].get("flood_risk", 0)
         d["flood_risk"] = (u_risk + v_risk) / 2
-
-
-async def get_road_network(
-    start: Tuple[float, float], end: Tuple[float, float]
-) -> nx.Graph:
-    road_network_cache = get_road_network_cache()
-    key = (start, end)
-
-    if key in road_network_cache:
-        return road_network_cache[key]
-
-    distance = calculate_geodesic_distance(start, end)
-    buffer = min(0.015, distance * 0.1)
-
-    north = max(start[0], end[0]) + buffer
-    south = min(start[0], end[0]) - buffer
-    east = max(start[1], end[1]) + buffer
-    west = min(start[1], end[1]) - buffer
-
-    bbox = (north, south, east, west)
-    G = ox.graph_from_bbox(north, south, east, west, network_type="walk", simplify=True)
-
-    await compute_flood_risk(G, list(G.nodes))
-
-    # Assign flood risk to edges based on node flood risks
-    assign_edge_flood_risk(G)
-
-    set_road_network_cache(G)
-
-    return G
