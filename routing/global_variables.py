@@ -1,13 +1,13 @@
 # Placeholder for flooded areas and R-tree index
-FLOODED_AREAS = []
+FLOODED_AREAS = None
 FLOOD_INDEX = None
 
 # Placeholder for road network cache
 ROAD_NETWORK_CACHE = {}
 
 # Define flood exposure thresholds
-HIGH_EXPOSURE_THRESHOLD = 0.5  # 500 meters of flood exposure
-MEDIUM_EXPOSURE_THRESHOLD = 0.1  # 100 meters of flood exposure
+HIGH_EXPOSURE_THRESHOLD = 900  # 300 meters of flood exposure to risk 3
+MEDIUM_EXPOSURE_THRESHOLD = 450  # 150 meters of flood exposure to risk 3
 
 
 def get_flood_index():
