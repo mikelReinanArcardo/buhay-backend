@@ -21,25 +21,43 @@ def calculate_flood_risk(point: Tuple[float, float]) -> float:
     flood_index = get_flood_index()
     flooded_areas = get_flooded_areas()
 
-    point_geom = Point(point)
-    nearby_areas = list(flood_index.intersection(point_geom.bounds))
+    # Make this dynamic based on the file_name
+    flood_weights = {
+        "coordinates1.json": 1,
+        "coordinates2.json": 2,
+        "coordinates3.json": 3,
+    }
 
-    if not nearby_areas:
+    point_geom = Point(point)
+    nearby_areas = {}
+
+    for key, idx in flood_index.items():
+        nearby_areas[key] = list(idx.intersection(point_geom.bounds))
+
+    if all(not areas for areas in nearby_areas.values()):
         return 0.0
 
-    distances = [point_geom.distance(flooded_areas[i]) for i in nearby_areas]
-    closest_distance = min(distances)
+    distances = {}
+    for key, areas in nearby_areas.items():
+        distances[key] = [point_geom.distance(flooded_areas[key][i]) for i in areas]
 
-    if closest_distance == 0:
-        return 1.0
+    closest_distance = {}
+    for key, dists in distances.items():
+        if dists:
+            closest_distance[key] = min(dists)
 
+    risk = 0.0
     max_effect_distance = 0.01  # About 1km in degrees
-    return max(0, 1 - (closest_distance / max_effect_distance))
+    for key, distance in closest_distance.items():
+        level_risk = flood_weights.get(key, 0) - (distance / max_effect_distance)
+        risk = max(risk, level_risk)
+
+    return risk
 
 
 async def compute_flood_risk(graph: nx.Graph, nodes: List[int]) -> None:
     loop = asyncio.get_event_loop()
-    chunk_size = 1000  # Process nodes in chunks to avoid memory issues
+    chunk_size = 1000
 
     for i in range(0, len(nodes), chunk_size):
         chunk = nodes[i : i + chunk_size]
@@ -53,6 +71,13 @@ async def compute_flood_risk(graph: nx.Graph, nodes: List[int]) -> None:
 
         for u, risk in flood_risks.items():
             graph.nodes[u]["flood_risk"] = risk
+
+
+def assign_edge_flood_risk(G: nx.Graph) -> None:
+    for u, v, d in G.edges(data=True):
+        u_risk = G.nodes[u].get("flood_risk", 0)
+        v_risk = G.nodes[v].get("flood_risk", 0)
+        d["flood_risk"] = (u_risk + v_risk) / 2
 
 
 async def get_road_network(
@@ -76,6 +101,9 @@ async def get_road_network(
     G = ox.graph_from_bbox(north, south, east, west, network_type="walk", simplify=True)
 
     await compute_flood_risk(G, list(G.nodes))
+
+    # Assign flood risk to edges based on node flood risks
+    assign_edge_flood_risk(G)
 
     set_road_network_cache(G)
 
