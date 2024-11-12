@@ -1,3 +1,8 @@
+from typing import Tuple
+from functools import lru_cache
+from typing import List
+from geopy import distance
+
 # Placeholder for flooded areas and R-tree index
 FLOODED_AREAS = None
 FLOOD_INDEX = None
@@ -35,6 +40,26 @@ def get_road_network_cache():
     return ROAD_NETWORK_CACHE
 
 
-def set_road_network_cache(cache):
+def set_road_network_cache(cache, key):
     global ROAD_NETWORK_CACHE
-    ROAD_NETWORK_CACHE = cache
+    ROAD_NETWORK_CACHE[key] = cache
+
+
+@lru_cache(maxsize=1000)
+def calculate_geodesic_distance(
+    point1: Tuple[float, float], point2: Tuple[float, float]
+) -> float:
+    # Calculate the geodesic distance between two points in kilometers
+    return distance.distance(point1, point2).km
+
+
+def calculate_distance(route: List[Tuple[float, float]]) -> float:
+    return sum(
+        calculate_geodesic_distance(route[i], route[i + 1])
+        for i in range(len(route) - 1)
+    )
+
+
+def calculate_duration(distance_meters: int, average_speed: float = 5.0) -> float:
+    """Calculate the estimated duration in minutes based on distance and average walking speed."""
+    return (distance_meters / 1000) / average_speed * 60

@@ -1,0 +1,52 @@
+from typing import Tuple, List
+import networkx as nx
+import osmnx as ox
+
+from routing.global_variables import (
+    get_road_network_cache,
+    set_road_network_cache,
+    calculate_geodesic_distance,
+)
+from routing.route_system.flood_risk_computations import (
+    compute_flood_risk,
+    assign_edge_flood_risk,
+)
+
+
+async def get_road_network(
+    start: Tuple[float, float], end: Tuple[float, float]
+) -> nx.Graph:
+
+    # Get the road network cache
+    road_network_cache = get_road_network_cache()
+
+    # Initialize the key for the cache to be the start and end coordinates
+    key = (start, end)
+
+    # Check if the road network is already in the cache
+    if key in road_network_cache:
+        return road_network_cache[key]
+
+    # Calculate the bounding box for the road network
+    distance = calculate_geodesic_distance(start, end)
+    buffer = min(0.015, distance * 0.1)
+
+    north = max(start[0], end[0]) + buffer
+    south = min(start[0], end[0]) - buffer
+    east = max(start[1], end[1]) + buffer
+    west = min(start[1], end[1]) - buffer
+
+    # Get the road network graph
+    bbox = (north, south, east, west)
+    G = ox.graph_from_bbox(north, south, east, west, network_type="walk", simplify=True)
+
+    # Compute the flood risk for each node
+    await compute_flood_risk(G, list(G.nodes))
+
+    # Assign flood risk to edges based on node flood risks
+    await assign_edge_flood_risk(G)
+
+    # Add the road network to the cache
+    set_road_network_cache(G, key)
+
+    return G

@@ -1,47 +1,12 @@
 from typing import Tuple
-from functools import lru_cache
 import networkx as nx
 from typing import List
-from global_variables import HIGH_EXPOSURE_THRESHOLD, MEDIUM_EXPOSURE_THRESHOLD
 from geopy import distance
 import osmnx as ox
 
 
-@lru_cache(maxsize=1000)
-def calculate_geodesic_distance(
-    point1: Tuple[float, float], point2: Tuple[float, float]
-) -> float:
-    return distance.distance(point1, point2).km
-
-
-def calculate_distance(route: List[Tuple[float, float]]) -> float:
-    return sum(
-        calculate_geodesic_distance(route[i], route[i + 1])
-        for i in range(len(route) - 1)
-    )
-
-
-def weight_function(u, v, d):
-    length = d[0].get("length", 1)
-    flood_risk = d[0].get("flood_risk", 0)
-
-    flood_exposure_length = length * flood_risk
-    if flood_exposure_length > HIGH_EXPOSURE_THRESHOLD:
-        return length * 10
-    elif flood_exposure_length > MEDIUM_EXPOSURE_THRESHOLD:
-        return length * 5
-    elif flood_risk > 0:
-        return length * 2
-    return length
-
-
-def calculate_duration(distance_meters: int, average_speed: float = 5.0) -> float:
-    """Calculate the estimated duration in minutes based on distance and average walking speed."""
-    return (distance_meters / 1000) / average_speed * 60
-
-
 def get_street_name(G: nx.Graph, u: int, v: int) -> str:
-    """Get the street name for the edge between two nodes."""
+    # Get the street name for the edge between two nodes
     edge_data = G.get_edge_data(u, v, 0)
     if "name" in edge_data:
         return edge_data["name"]
@@ -49,6 +14,7 @@ def get_street_name(G: nx.Graph, u: int, v: int) -> str:
 
 
 def get_cardinal_direction(start: Tuple[float, float], end: Tuple[float, float]) -> str:
+    # Calculate the cardinal direction from the start to the end point
     angle = ox.bearing.calculate_bearing(start[0], start[1], end[0], end[1])
     directions = [
         "north",
@@ -84,6 +50,7 @@ def get_turn_direction(
     # Calculate the turn angle
     turn_angle = (angle2 - angle1 + 360) % 360
 
+    # Determine the turn direction based on the angle
     if turn_angle < 10 or turn_angle > 350:
         return "Continue straight"
     elif 10 <= turn_angle < 170:
