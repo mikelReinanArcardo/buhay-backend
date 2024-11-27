@@ -1,90 +1,18 @@
+fastapi[standard]
 aiofiles
-aiohappyeyeballs
-aiohttp
-aiosignal
-annotated-types
-anyio
-attrs
-certifi
-charset-normalizer
-click
-click-plugins
-cligj
-dnspython
-email_validator
-fastapi
-fastapi-cli
-fiona
-frozenlist
-geographiclib
-geopandas
+psycopg2 # Needs postgresql to be installed (in mac).
+aiofiles
 geopy
-h11
-httpcore
-httptools
-httpx
-idna
-iniconfig
-Jinja2
-joblib
-markdown-it-py
-MarkupSafe
-mdurl
-multidict
-networkx
-numpy
 osmnx
-packaging
-pandas
-pluggy
-propcache
-psycopg2-binary
-pydantic
-pydantic_core
-Pygments
-pyproj
+rtree
+shapely
+httpx
 pytest
 pytest-asyncio
-python-dateutil
-python-dotenv
-python-multipart
-pytz
-PyYAML
+networkx
+numpy
+pandas
 requests
-rich
-Rtree
-scikit-learn
 scipy
-shapely
-shellingham
-six
-sniffio
-starlette
-threadpoolctl
-typer
-typing_extensions
-tzdata
-urllib3
 uvicorn
-uvloop
-watchfiles
-websockets
-yarl
-# fastapi[standard]
-# aiofiles
-# psycopg2 # Needs postgresql to be installed (in mac).
-# aiofiles
-# geopy
-# osmnx
-# rtree
-# shapely
-# httpx
-# pytest
-# pytest-asyncio
-# networkx
-# numpy
-# pandas
-# requests
-# scipy
-# uvicorn
-# scikit-learn
+scikit-learn
