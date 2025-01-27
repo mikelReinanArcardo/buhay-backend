@@ -8,8 +8,8 @@ from routing.load_data import load_flooded_areas
 from routing.geojson import create_geojson
 from models import Route, DirectionsResponse
 from routing.main_routing import compute_best_route_from_request
+from tsp_endpoint import main_tsp
 from routing.cache_database import write_to_database
-
 
 # Load the flooded areas on startup
 @asynccontextmanager
@@ -21,6 +21,8 @@ async def startup_event(app: FastAPI) -> AsyncGenerator[None, None]:
 # Initialize the FastAPI app
 app = FastAPI(lifespan=startup_event)
 
+#Include router for tsp endpoint
+app.include_router(main_tsp.router)
 
 @app.get("/directions", status_code=status.HTTP_200_OK)
 async def directions(start: str, end: str) -> DirectionsResponse:
