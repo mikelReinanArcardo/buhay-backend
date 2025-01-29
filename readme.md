@@ -20,7 +20,7 @@ This API calculates the safest route between a start and an end location, using 
       DB_CACHE_PASSWORD = ""
       DB_CACHE_HOST = ""
       DB_CACHE_PORT = ""
-      TABLE_NAME = ""
+      DB_CACHE_TABLE_NAME = ""
       DB_CACHE_URL = ""
    ```
 
