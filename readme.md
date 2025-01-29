@@ -15,17 +15,18 @@ This API calculates the safest route between a start and an end location, using 
 
 2. **Database Credentials**: Add a `db_env.py` file in the main directory containing the database credentials. This file should be formatted as follows:
    ```python
-      DB_NAME = ""
-      DB_USER = ""
-      DB_PASSWORD = ""
-      DB_HOST = ""
-      DB_PORT = ""
+      DB_CACHE_NAME = ""
+      DB_CACHE_USER = ""
+      DB_CACHE_PASSWORD = ""
+      DB_CACHE_HOST = ""
+      DB_CACHE_PORT = ""
       TABLE_NAME = ""
+      DB_CACHE_URL = ""
    ```
 
 ---
 
-## Setup Instructions
+## Github Installation
 
 1. Clone the repository or download the source code.
 
@@ -48,6 +49,24 @@ This API calculates the safest route between a start and an end location, using 
 
 ---
 
+## Docker Installation
+
+1. Install Docker
+2. Pull the image from [Docker Hub](https://hub.docker.com/r/epilefs/buhay-api)
+   ```bash
+   docker pull epilefs/buhay-api
+   ```
+3. Run the downloaded image
+   ```bash
+   docker run -p 8080:8080 epilefs/buhay-api
+   ```
+4. By default, the API will be available at:
+   ```
+   http://0.0.0.0:8080
+   ```
+
+---
+
 ## Running the FastAPI Server
 
 1. Start the development server:
@@ -59,17 +78,35 @@ This API calculates the safest route between a start and an end location, using 
    ```
    http://127.0.0.1:8000
    ```
+   
+---
 
-3. Use the `/directions` endpoint to calculate the safest route. Example:
+## Using the `directions` endpoint
+
+1. Install Postman.
+2. Use the `/directions` endpoint to calculate the safest route.
+   - If running with the fastapi server, use `http://127.0.0.1:8000/directions`
+   - If running with Docker, use `http://0.0.0.0:8080/directions`
+
+   In the request body, the endpoint requires a JSON parameter of the form
    ```
-   http://127.0.0.1:8000/directions?start=<longitude,latitude>&end=<longitude,latitude>
+   {
+      "start" : "<longitude>,<latitude>",
+      "end" : "<longitude>,<latitude>" 
+   }
    ```
 
-   Replace `<longitude,latitude>` with the appropriate coordinates for the start and end locations.
-
-   Example for Quezon City:
+3. The response will be in the form
    ```
-   http://127.0.0.1:8000/directions?start=121.0437,14.6760&end=121.0567,14.6517
+   {
+      "route" : {
+            "duration": float,
+            "distanceKm": float
+      },
+
+      "geojson" : <geojson_data>,
+      "message" : str
+   }
    ```
 
 ---
