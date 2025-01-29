@@ -21,11 +21,11 @@ async def compute_best_route_from_request(start: str, end: str):
     hashed_id = sha256(f"{start_lng}{start_lat}{end_lng}{end_lat}".encode()).hexdigest()
 
     # Check if hashed_id exists in the cache db
-    db_data = read_database(hashed_id)
+    db_data = await read_database(hashed_id)
 
     # If it exists, return the route from the cache db
     if db_data != []:
-        return None, None, None, None, None, db_data[0][1]
+        return None, None, None, None, db_data
 
     start_time = time.time()
 
@@ -36,7 +36,7 @@ async def compute_best_route_from_request(start: str, end: str):
     )
 
     # Get the route information
-    route_info = get_directions(G, path, route)
+    # route_info = get_directions(G, path, route)
 
     end_time = time.time()
 
@@ -52,9 +52,15 @@ async def compute_best_route_from_request(start: str, end: str):
             duration_minutes,
             total_distance_km,
             route_coordinates,
-            route_info,
+            # route_info,
             None,
         )
     else:
         # Return None if no safe route is found
-        return None, None, None, None, None, None
+        return (
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
