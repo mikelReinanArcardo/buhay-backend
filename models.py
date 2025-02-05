@@ -28,5 +28,9 @@ class DirectionsRequest(BaseModel):
 
 
 class Point(BaseModel):
-    location_name: str | None
+    # (lat, lng)
     coordinates: Tuple[float, float]
+
+class TSPinput(BaseModel):
+    start: Point
+    other_points: List[Point]

@@ -11,7 +11,6 @@ def create_graph(points: List[Point]) -> nx.Graph:
     for i in range(n):
         G.add_node(
             i, 
-            location_name = points[i].location_name, 
             lat = points[i].coordinates[0], 
             lng = points[i].coordinates[1]
         )
@@ -29,22 +28,21 @@ def create_graph(points: List[Point]) -> nx.Graph:
     
     return G
 
-def append_starting_node(G: nx.Graph, tsp_route: List[int]) -> List[int]:
+def append_starting_node(tsp_route: List[Point], start: Point) -> List[Point]:
     # Compare the haversine distance between the starting node and each end of the hamiltonian path containing nodes 1 to n-1.
     # Put starting node 0 next to the hamiltonian end node that is closer.
     # Reverse the output list if the starting node was put on the right end of the list.
 
-    starting_node = 0
-    lat_0, lng_0 = G.nodes[starting_node]['lat'], G.nodes[starting_node]['lng']
+    lat_0, lng_0 = start.coordinates[0], start.coordinates[1]
     left_end = tsp_route[0]
-    lat_left, lng_left = G.nodes[left_end]['lat'], G.nodes[left_end]['lng']
+    lat_left, lng_left = left_end['coordinates'][0], left_end['coordinates'][1]
     right_end = tsp_route[-1]
-    lat_right, lng_right = G.nodes[right_end]['lat'], G.nodes[right_end]['lng']
+    lat_right, lng_right = right_end['coordinates'][0], right_end['coordinates'][1]
 
     if great_circle(lat_0, lng_0, lat_left, lng_left) < great_circle(lat_0, lng_0, lat_right, lng_right): 
-        complete_tsp: List[int] = [0] + tsp_route
+        complete_tsp: List[Point] = [start] + tsp_route
     else:
-        complete_tsp: List[int] = [0] + tsp_route[::-1]
+        complete_tsp: List[Point] = [start] + tsp_route[::-1]
 
     return complete_tsp
 
@@ -52,7 +50,6 @@ def node_to_json_parser(G: nx.Graph, nodes: List[int]) -> List[Point]:
     ret: List[Point] = []
     for node in nodes:
         ret.append({
-            "location_name": G.nodes[node]["location_name"],
             "coordinates": [G.nodes[node]["lat"], G.nodes[node]["lng"]]
         })
     return ret
