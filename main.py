@@ -10,6 +10,9 @@ from routing.cache_database import (
     connect_to_database,
     close_database_connection,
 )
+import json
+from models import Point
+from qc_coordinates import check_point_in_polygon
 
 
 # Load the flooded areas on startup
@@ -37,3 +40,17 @@ async def call_directions(directionRequest: DirectionsRequest):
 @app.get("/ping", status_code=status.HTTP_200_OK)
 async def ping():
     return {"message": "pong"}
+
+
+@app.post("/checkCoordinates", status_code=status.HTTP_200_OK)
+async def checkCoordinates(point: Point):
+    if await check_point_in_polygon(point.coordinates):
+        return {"message": "true"}
+    return {"message": "false"}
+
+
+@app.get("/test", status_code=status.HTTP_200_OK)
+async def test():
+    with open("sample_data.json", "r") as f:
+        json_data = json.load(f)
+    return json_data
