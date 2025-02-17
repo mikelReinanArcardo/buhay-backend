@@ -42,4 +42,4 @@ class Graph:
         return list(filter(lambda n : n.i == i, self._nodes))[0]
 
 Path = Tuple[float, List[Node]] # total distance, nodes
-Coordinates = Tuple[float, float] # lat, lng
+Coordinates = Tuple[float, float] # lng, lat

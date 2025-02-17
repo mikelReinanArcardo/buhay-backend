@@ -11,15 +11,15 @@ def create_graph(points: List[Point]) -> nx.Graph:
     for i in range(n):
         G.add_node(
             i, 
-            lat = points[i].coordinates[0], 
-            lng = points[i].coordinates[1]
+            lng = points[i].coordinates[0], 
+            lat = points[i].coordinates[1]
         )
     
     # Add edge(i,j) for each possible i,j combination such that its weight is the haversine distance between Point i and Point j
     for i in range(n):
-        lat_i, lng_i = points[i].coordinates
+        lng_i, lat_i = points[i].coordinates
         for j in range(i+1, n):
-            lat_j, lng_j = points[j].coordinates
+            lng_j, lat_j = points[j].coordinates
             haversine_distance = great_circle(lat_i, lng_i, lat_j, lng_j)
             G.add_edge(
                 i, j,
@@ -33,11 +33,11 @@ def append_starting_node(tsp_route: List[Point], start: Point) -> List[Point]:
     # Put starting node 0 next to the hamiltonian end node that is closer.
     # Reverse the output list if the starting node was put on the right end of the list.
 
-    lat_0, lng_0 = start.coordinates[0], start.coordinates[1]
+    lng_0, lat_0 = start.coordinates[0], start.coordinates[1]
     left_end = tsp_route[0]
-    lat_left, lng_left = left_end['coordinates'][0], left_end['coordinates'][1]
+    lng_left, lat_left = left_end['coordinates'][0], left_end['coordinates'][1]
     right_end = tsp_route[-1]
-    lat_right, lng_right = right_end['coordinates'][0], right_end['coordinates'][1]
+    lng_right, lat_right = right_end['coordinates'][0], right_end['coordinates'][1]
 
     if great_circle(lat_0, lng_0, lat_left, lng_left) < great_circle(lat_0, lng_0, lat_right, lng_right): 
         complete_tsp: List[Point] = [start] + tsp_route
@@ -50,6 +50,6 @@ def node_to_json_parser(G: nx.Graph, nodes: List[int]) -> List[Point]:
     ret: List[Point] = []
     for node in nodes:
         ret.append({
-            "coordinates": [G.nodes[node]["lat"], G.nodes[node]["lng"]]
+            "coordinates": [G.nodes[node]["lng"], G.nodes[node]["lat"]]
         })
     return ret

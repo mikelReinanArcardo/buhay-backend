@@ -11,8 +11,21 @@ from models import Point, TSPinput
 
 from random import randint
 from time import time
+from pprint import pprint
 
 
+from tests.naive_tsp import naive_tsp # For testing
+from models import TSPinput
+from tests.naive_tsp.structs import Graph, Path, Coordinates
+from tests.naive_tsp.utils import naive_create_graph, min_hamiltonian_paths, path_to_json_parser
+
+from osmnx.distance import great_circle
+
+def total_haversine(points, n):
+    total = 0
+    for i in range(n):
+        total += great_circle(points[i]["coordinates"][1], points[i]["coordinates"][0],points[i+1]["coordinates"][1], points[i+1]["coordinates"][0])
+    return total
 
 def generate_points(n: int) -> TSPinput:
     start: Point = {"coordinates": [randint(0, 100_000), randint(0, 100_000)]}
@@ -20,16 +33,14 @@ def generate_points(n: int) -> TSPinput:
     for i in range(n-1):
         lat = float(randint(0, 100_000))
         lng = float(randint(0, 100_000))
-        p = {"coordinates":[lat,lng]}
+        p = {"coordinates":[lng,lat]}
         other_points.append(p)
     ret: TSPinput = {
         "start": start,
         "other_points": other_points
     }
     return ret
-
-
-
+  
 @pytest.mark.asyncio
 async def test_tsp():
     start = time()
@@ -46,37 +57,43 @@ async def test_tsp():
                 }
             )
             response = await client.send(request)
+
         end = time()
-        print("TIME TAKEN: ", end-start)
-        # print(response.json())
-        assert response.json() == [
+        # print("TIME TAKEN: ", end-start)
+        print(response.json(), total_haversine(response.json(), 4))
+        print(total_haversine([
             {"coordinates": [1.0, 1.0]},
             {"coordinates": [0.0, 0.0]},
             {"coordinates": [2.0, 2.0]},
-            {"coordinates": [10.0,10.0]}
+            {"coordinates": [10.0,10.0]},
+            {"coordinates": [1.0, 1.0]},
+        ], 4))
+        assert response.json() == [
+            {"coordinates": [1.0, 1.0]},
+            {"coordinates": [0.0, 0.0]},
+            {"coordinates": [10.0, 10.0]},
+            {"coordinates": [2.0, 2.0]},
+            {"coordinates": [1.0, 1.0]},
         ]
 
 @pytest.mark.asyncio
 async def test_time():
-    test_cases = 1000
+    test_cases = 6
     n = 6
     total_start = time()
     for i in range(test_cases):
         body = generate_points(n)
-        # print(body)
-        # start = time()
+        pprint(body)
+        start = time()
         async with startup_event(app):
             async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
                 request = client.build_request(url="/tsp", method="GET", json=body)
                 response = await client.send(request)
-            # end = time()
-            # print(response.json())
-            # print(f"RANDOM TEST {i+1} TIME TAKEN: ", end-start)
+
     total_end = time()
+    print()
     print(f"TIME TAKEN FOR n={n} {test_cases} TEST CASES: ", total_end-total_start)
     print(f"AVERAGE TIME FOR n={n} {test_cases} TEST CASES: ", (total_end-total_start)/test_cases)
-
-
 
 async def tsp_case(inp: TSPinput):
     async with startup_event(app):
@@ -125,4 +142,3 @@ async def test_correctness():
 
     print(f'Total time: {total_end - total_start}')
     print(f'Average time per test case: {(total_end - total_start) / test_cases}')
-    
