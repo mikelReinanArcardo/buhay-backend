@@ -18,16 +18,16 @@ def naive_create_graph(points: List[Point]) -> Graph:
     for i in range(n):
         G.add_node(
             i,
-            lat = points[i]["coordinates"][1], 
-            lng = points[i]["coordinates"][0]
+            lat = points[i].coordinates[1], 
+            lng = points[i].coordinates[0]
         )
     
     # Add edge (i, j) for each possible i, j combination such that its weight 
     # is the haversine distance between Point i and Point j
     for i in range(n):
-        lng_i, lat_i = points[i]["coordinates"]
+        lng_i, lat_i = points[i].coordinates
         for j in range(i+1, n):
-            lng_j, lat_j = points[j]["coordinates"]
+            lng_j, lat_j = points[j].coordinates
             haversine_distance = great_circle(lat_i, lng_i, lat_j, lng_j)
             
             G.add_edge(

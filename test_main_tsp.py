@@ -102,7 +102,7 @@ async def tsp_case(inp: TSPinput):
             tsp_response = await tsp_client.send(request)
 
         tsp_json = tsp_response.json()
-        print(f'/tsp: {tsp_json}')
+        print(f'/tsp: {tsp_json}, distance: {total_haversine(tsp_json, len(inp["other_points"])+1)}')
         print()
     
     return tsp_json
@@ -115,7 +115,7 @@ async def naive_tsp_case(inp: TSPinput):
             naive_tsp_response = await naive_tsp_client.send(request)
 
         naive_tsp_json = naive_tsp_response.json()
-        print(f'/naive_tsp: {naive_tsp_json}')
+        print(f'/naive_tsp: {naive_tsp_json}, distance: {total_haversine(naive_tsp_json, len(inp["other_points"])+1)}')
         print()
 
     return naive_tsp_json
