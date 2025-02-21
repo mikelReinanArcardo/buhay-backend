@@ -15,4 +15,4 @@ __pycache__/
 
 # vscode
 .vscode/
-db_env.py
+.env
