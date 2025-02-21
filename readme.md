@@ -26,7 +26,8 @@ This API calculates the safest route between a start and an end location, using 
 
 ---
 
-## Github Installation
+## Github Installation 
+### Mac Installation
 
 1. Clone the repository or download the source code.
 
@@ -47,6 +48,28 @@ This API calculates the safest route between a start and an end location, using 
    pip install -r requirements.txt
    ```
 
+### Windows Installation
+
+1. Clone the repository or download the source code.
+
+2. Navigate to the project directory.
+
+3. Set up a virtual environment:
+   ```bash
+   python3.13 -m venv .venv
+   ```
+
+4. Activate the virtual environment:
+   ```bash
+   cd .venv/bin
+   activate
+   ```
+
+5. Install the required dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
 ---
 
 ## Docker Installation
@@ -54,11 +77,11 @@ This API calculates the safest route between a start and an end location, using 
 1. Install Docker
 2. Pull the image from [Docker Hub](https://hub.docker.com/r/epilefs/buhay-api)
    ```bash
-   docker pull epilefs/buhay-api
+   docker pull epilefs/buhay-api:v0.1.1
    ```
 3. Run the downloaded image
    ```bash
-   docker run -p 8080:8080 epilefs/buhay-api
+   docker run -p 8080:8080 epilefs/buhay-api:v0.1.1
    ```
 4. By default, the API will be available at:
    ```
@@ -107,6 +130,50 @@ This API calculates the safest route between a start and an end location, using 
       "geojson" : <geojson_data>,
       "message" : str
    }
+   ```
+
+---
+
+## Using the `tsp` endpoint
+
+The _tsp endpoint_ accepts a POST Request at the `/tsp` path. This request contains a list of <b>n</b> `Point`s which follows the format below.
+1. Install Postman.
+2. Use the `/tsp` endpoint to calculate the safest route.
+   - If running with the fastapi server, use `http://127.0.0.1:8000/tsp`
+   - If running with Docker, use `http://0.0.0.0:8080/tsp`
+  
+   In the request body, the endpoint requires a JSON parameter of the form
+   ```
+   [
+      {
+         "start": {
+           "coordinates": [
+             longitude,
+             latitude
+           ]
+         },
+         "other_points": [
+           {
+             "coordinates": [
+               longitude,
+               latitude
+             ],
+             ...
+           }
+         ]
+      }
+   ]
+   ```
+3. The response will be in the form
+   ```
+   [
+      {
+         "start" : [<longitude>,<latitude>],
+         "end" : [<longitude>,<latitude>],
+         "data" : <geojson_data>
+      },
+      ...
+   ]
    ```
 
 ---
