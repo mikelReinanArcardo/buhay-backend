@@ -77,11 +77,11 @@ This API calculates the safest route between a start and an end location, using 
 1. Install Docker
 2. Pull the image from [Docker Hub](https://hub.docker.com/r/epilefs/buhay-api)
    ```bash
-   docker pull epilefs/buhay-api:v0.1.1
+   docker pull epilefs/buhay-api
    ```
 3. Run the downloaded image
    ```bash
-   docker run -p 8080:8080 epilefs/buhay-api:v0.1.1
+   docker run -p 8080:8080 epilefs/buhay-api
    ```
 4. By default, the API will be available at:
    ```
