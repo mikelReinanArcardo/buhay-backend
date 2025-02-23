@@ -13,7 +13,7 @@ This API calculates the safest route between a start and an end location, using 
      ```
    - If not installed, download and install it from the [official Python website](https://www.python.org/downloads/).
 
-2. **Database Credentials**: Add a `db_env.py` file in the main directory containing the database credentials. This file should be formatted as follows:
+2. **Database Credentials**: Add a `.env` file in the main directory containing the database credentials. This file should be formatted as follows:
    ```python
       DB_CACHE_NAME = ""
       DB_CACHE_USER = ""
@@ -198,7 +198,7 @@ The _tsp endpoint_ accepts a POST Request at the `/tsp` path. This request conta
 
 - The UP NOAH dataset is pre-loaded and does not require manual setup.
 - Modify the `host` and `port` in the `fastapi` command if needed to match your environment.
-- Ensure the `db_env.py` file is correctly configured for database access.
+- Ensure the `.env` file is correctly configured for database access.
 - Route requests with a location outside Quezon City could result to an incorrect route data since flood data is limited to Quezon City only.
 
 ---
