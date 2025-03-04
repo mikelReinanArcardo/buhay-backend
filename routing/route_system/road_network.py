@@ -31,7 +31,9 @@ async def get_road_network(
 
     # Calculate the bounding box for the road network
     distance = calculate_geodesic_distance(start, end)
-    buffer = min(0.001, distance * 0.1)
+    # Reducing the buffer size below 0.01 improves the time taken to compute the flood risk
+    # However, it may result in a less accurate route or route is cut off due to the buffer size
+    buffer = min(0.01, distance * 0.01)
 
     north = max(start[0], end[0]) + buffer
     south = min(start[0], end[0]) - buffer
