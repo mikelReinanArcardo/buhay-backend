@@ -45,7 +45,8 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                 "SELECT * FROM test_table WHERE rescuer_id = $1 AND done = false ORDER BY id ASC",
                 user_id,
             )
-            print(f"Initial rows for user_id {user_id}: {rows}")
+            # print(f"Initial rows for user_id {user_id}: {rows}")
+            print(f"Initial rows for user_id {user_id}")
             for row in rows:
                 await websocket_manager.send_to_user(user_id, dict(row))
         finally:
@@ -76,20 +77,37 @@ async def handle_notification(connection, pid, channel, payload):
         # Parse the payload as JSON if it contains JSON data
         try:
             payload_data = json.loads(payload)  # Convert payload to a dictionary
-            user_id = payload_data.get("rescuer_id")  # Extract rescuer_id
+            old_rescuer_id = payload_data.get(
+                "old_rescuer_id"
+            )  # Extract old rescuer_id
+            rescuer_id = payload_data.get("rescuer_id")  # Extract new rescuer_id
         except json.JSONDecodeError:
             print(f"Payload is not valid JSON: {payload}")
             return
 
-        if user_id in websocket_manager.active_connections:
-            rows = await conn.fetch(
+        # Notify the old rescuer if they are connected
+        if old_rescuer_id:
+            old_rows = await conn.fetch(
                 "SELECT * FROM test_table WHERE rescuer_id = $1 AND done = false ORDER BY id ASC",
-                user_id,
+                old_rescuer_id,
             )
-            print(f"Rows for user_id {user_id}: {rows}")
-            for row in rows:
-                # Send the row data to the specific user
-                await websocket_manager.send_to_user(user_id, dict(row))
+            # print(f"All rows for old_rescuer_id {old_rescuer_id}: {old_rows}")
+            print(f"All rows for old_rescuer_id {old_rescuer_id}")
+            await websocket_manager.send_to_user(
+                old_rescuer_id, [dict(row) for row in old_rows]
+            )
+
+        # Notify the new rescuer if they are connected
+        if rescuer_id and rescuer_id in websocket_manager.active_connections:
+            new_rows = await conn.fetch(
+                "SELECT * FROM test_table WHERE rescuer_id = $1 AND done = false ORDER BY id ASC",
+                rescuer_id,
+            )
+            # print(f"All rows for rescuer_id {rescuer_id}: {new_rows}")
+            print(f"All rows for rescuer_id {rescuer_id}")
+            await websocket_manager.send_to_user(
+                rescuer_id, [dict(row) for row in new_rows]
+            )
     finally:
         await conn.close()
 
