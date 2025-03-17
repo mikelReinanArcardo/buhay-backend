@@ -6,6 +6,9 @@ import json
 from routing.load_data import load_flooded_areas
 from tsp_endpoint import main_tsp
 from tests.naive_tsp import naive_tsp  # For testing
+
+from database_endpoints import login_endpoint
+
 from routing.route_directions import directions
 from models import DirectionsRequest
 from routing.cache_database import (
@@ -34,6 +37,7 @@ app = FastAPI(lifespan=startup_event)
 app.include_router(main_tsp.router)
 app.include_router(naive_tsp.router)  # For testing
 app.include_router(own_socket.router)
+app.include_router(login_endpoint.router)
 
 
 # app.include_router(route_directions.router)

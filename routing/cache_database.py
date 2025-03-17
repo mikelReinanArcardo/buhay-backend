@@ -52,3 +52,14 @@ async def write_to_database(hashed_id, route):
                 hashed_id,
                 route,
             )
+
+async def search_login(username: str, password: str):
+    people_table = "people"
+    async with connection_pool.acquire() as connection:
+        async with connection.transaction():
+            db_data = await connection.fetchrow(
+                f"SELECT person_id, access_control FROM {people_table} WHERE username = $1 AND password = $2", 
+                username, password
+            )
+    print(db_data)
+    return db_data

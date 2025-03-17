@@ -34,3 +34,7 @@ class Point(BaseModel):
 class TSPinput(BaseModel):
     start: Point
     other_points: List[Point]
+
+class LoginInput(BaseModel):
+    username: str
+    password: str
