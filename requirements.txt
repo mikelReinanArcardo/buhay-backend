@@ -4,6 +4,7 @@ aiofiles
 psycopg2 # Needs postgresql to be installed (in mac).
 aiofiles
 geopy
+googlemaps
 osmnx
 rtree
 shapely
