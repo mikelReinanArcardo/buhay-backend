@@ -1,19 +1,20 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
 from typing import AsyncGenerator
+import json
 
 from routing.load_data import load_flooded_areas
 from tsp_endpoint import main_tsp
-from tests.naive_tsp import naive_tsp # For testing
+from tests.naive_tsp import naive_tsp  # For testing
 from routing.route_directions import directions
 from models import DirectionsRequest
 from routing.cache_database import (
     connect_to_database,
     close_database_connection,
 )
-import json
 from models import Point
 from qc_coordinates import check_point_in_polygon
+from own_websocket import own_socket
 
 
 # Load the flooded areas on startup
@@ -21,6 +22,7 @@ from qc_coordinates import check_point_in_polygon
 async def startup_event(app: FastAPI) -> AsyncGenerator[None, None]:
     await load_flooded_areas()
     await connect_to_database()
+    await own_socket.start_db_listener()
     yield
     await close_database_connection()
 
@@ -30,7 +32,8 @@ app = FastAPI(lifespan=startup_event)
 
 # Include router for tsp endpoint
 app.include_router(main_tsp.router)
-app.include_router(naive_tsp.router) # For testing
+app.include_router(naive_tsp.router)  # For testing
+app.include_router(own_socket.router)
 
 
 # app.include_router(route_directions.router)
