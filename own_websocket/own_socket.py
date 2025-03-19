@@ -46,9 +46,13 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
                 user_id,
             )
             # print(f"Initial rows for user_id {user_id}: {rows}")
-            print(f"Initial rows for user_id {user_id}")
-            for row in rows:
-                await websocket_manager.send_to_user(user_id, dict(row))
+            if rows:
+                print(f"Initial rows for user_id {user_id}")
+                for row in rows:
+                    await websocket_manager.send_to_user(user_id, dict(row))
+            else:
+                print(f"No rows found for user_id {user_id}")
+                await websocket_manager.send_to_user(user_id, [])
         finally:
             await conn.close()
 
@@ -104,10 +108,12 @@ async def handle_notification(connection, pid, channel, payload):
                 rescuer_id,
             )
             # print(f"All rows for rescuer_id {rescuer_id}: {new_rows}")
-            print(f"All rows for rescuer_id {rescuer_id}")
-            await websocket_manager.send_to_user(
-                rescuer_id, [dict(row) for row in new_rows]
-            )
+            if new_rows:
+                await websocket_manager.send_to_user(
+                    rescuer_id, [dict(row) for row in new_rows]
+                )
+            else:
+                await websocket_manager.send_to_user(rescuer_id, [])
     finally:
         await conn.close()
 
