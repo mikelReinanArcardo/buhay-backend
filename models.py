@@ -31,10 +31,20 @@ class Point(BaseModel):
     # (lng, lat)
     coordinates: Tuple[float, float]
 
+
 class TSPinput(BaseModel):
     start: Point
     other_points: List[Point]
 
+
 class LoginInput(BaseModel):
     username: str
     password: str
+
+
+class RouteInfo(BaseModel):
+    route_id: int
+
+
+class UpdateRescued(BaseModel):
+    request_id: int

@@ -53,13 +53,37 @@ async def write_to_database(hashed_id, route):
                 route,
             )
 
+
 async def search_login(username: str, password: str):
     people_table = "people"
     async with connection_pool.acquire() as connection:
         async with connection.transaction():
             db_data = await connection.fetchrow(
-                f"SELECT person_id, access_control FROM {people_table} WHERE username = $1 AND password = $2", 
-                username, password
+                f"SELECT person_id, access_control FROM {people_table} WHERE username = $1 AND password = $2",
+                username,
+                password,
             )
     print(db_data)
     return db_data
+
+
+async def route_info(route_id: str):
+    table = "route_info"
+    async with connection_pool.acquire() as connection:
+        async with connection.transaction():
+            db_data = await connection.fetch(
+                f"SELECT * FROM {table} WHERE route_id = $1",
+                route_id,
+            )
+    return db_data[0]
+
+
+async def update_rescued_boolean(request_id: str):
+    table = "dispatcher_data"
+    async with connection_pool.acquire() as connection:
+        async with connection.transaction():
+            await connection.execute(
+                f"UPDATE {table} SET rescued = true WHERE request_id = $1",
+                request_id,
+            )
+    return

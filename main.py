@@ -14,8 +14,10 @@ from models import DirectionsRequest
 from routing.cache_database import (
     connect_to_database,
     close_database_connection,
+    route_info,
+    update_rescued_boolean,
 )
-from models import Point
+from models import Point, RouteInfo, UpdateRescued
 from qc_coordinates import check_point_in_polygon
 from own_websocket import own_socket
 
@@ -64,3 +66,15 @@ async def test():
     with open("sample_data.json", "r") as f:
         json_data = json.load(f)
     return json_data
+
+
+@app.post("/get_route_info", status_code=status.HTTP_200_OK)
+async def get_route_info(route_id: RouteInfo):
+    data = await route_info(route_id.route_id)
+    return {"payload": data}
+
+
+@app.post("/update_rescued", status_code=status.HTTP_200_OK)
+async def update_rescued(request_id: UpdateRescued):
+    await update_rescued_boolean(request_id.request_id)
+    return {"message": "done"}

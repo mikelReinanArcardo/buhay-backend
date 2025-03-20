@@ -8,10 +8,10 @@ from db_env import DB_CACHE_URL
 router = APIRouter()
 
 
-# QUERY = "SELECT * FROM dispatcher_data WHERE rescuer_id = $1 AND rescued = false ORDER BY request_id ASC"
-QUERY = (
-    "SELECT * FROM test_table WHERE rescuer_id = $1 AND done = false ORDER BY id ASC"
-)
+QUERY = "SELECT * FROM dispatcher_data WHERE rescuer_id = $1 AND rescued = false ORDER BY request_id ASC"
+# QUERY = (
+#     "SELECT * FROM test_table WHERE rescuer_id = $1 AND done = false ORDER BY id ASC"
+# )
 
 
 # WebSocket manager to handle connected clients
@@ -49,8 +49,8 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
         try:
             rows = await conn.fetch(
                 QUERY,
-                # int(user_id),
-                user_id,
+                int(user_id),
+                # user_id,
             )
             # print(f"Initial rows for user_id {user_id}: {rows}")
             if rows:
@@ -73,8 +73,8 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
 # Listen for PostgreSQL notifications
 async def listen_to_db():
     conn = await asyncpg.connect(DB_CACHE_URL)
-    await conn.add_listener("realtime_updates", handle_notification)
-    # await conn.add_listener("dispatcher_updates", handle_notification)
+    # await conn.add_listener("realtime_updates", handle_notification)
+    await conn.add_listener("dispatcher_updates", handle_notification)
     try:
         while True:
             await asyncio.sleep(1)  # Keep the connection alive
@@ -89,13 +89,13 @@ async def handle_notification(connection, pid, channel, payload):
         # Parse the payload as JSON if it contains JSON data
         try:
             payload_data = json.loads(payload)  # Convert payload to a dictionary
-            # old_rescuer_id = str(
-            #     payload_data.get("old_rescuer_id")
-            # )  # Extract old rescuer_id
-            # rescuer_id = str(payload_data.get("rescuer_id"))  # Extract new rescuer_id
+            old_rescuer_id = str(
+                payload_data.get("old_rescuer_id")
+            )  # Extract old rescuer_id
+            rescuer_id = str(payload_data.get("rescuer_id"))  # Extract new rescuer_id
 
-            old_rescuer_id = payload_data.get("old_rescuer_id")
-            rescuer_id = payload_data.get("rescuer_id")
+            # old_rescuer_id = payload_data.get("old_rescuer_id")
+            # rescuer_id = payload_data.get("rescuer_id")
         except json.JSONDecodeError:
             print(f"Payload is not valid JSON: {payload}")
             return
@@ -104,8 +104,8 @@ async def handle_notification(connection, pid, channel, payload):
         if old_rescuer_id:
             old_rows = await conn.fetch(
                 QUERY,
-                # int(old_rescuer_id),
-                old_rescuer_id,
+                int(old_rescuer_id),
+                # old_rescuer_id,
             )
             # print(f"All rows for old_rescuer_id {old_rescuer_id}: {old_rows}")
             print(f"All rows for old_rescuer_id {old_rescuer_id}")
@@ -117,8 +117,8 @@ async def handle_notification(connection, pid, channel, payload):
         if rescuer_id and rescuer_id in websocket_manager.active_connections:
             new_rows = await conn.fetch(
                 QUERY,
-                # int(rescuer_id),
-                rescuer_id,
+                int(rescuer_id),
+                # rescuer_id,
             )
             # print(f"All rows for rescuer_id {rescuer_id}: {new_rows}")
             if new_rows:
