@@ -8,8 +8,10 @@ from db_env import GOOGLE_MAPS_API
 router = APIRouter()
 gmaps = googlemaps.Client(key=GOOGLE_MAPS_API)
 
+
 @router.post("/add_request", status_code=status.HTTP_200_OK)
 async def add_request(input: AddRequestInput):
+    print(input)
     try:
         person_id: int = input.person_id
         raw_coordinates = list()
@@ -17,10 +19,14 @@ async def add_request(input: AddRequestInput):
         for point in input.coordinates:
             lng, lat = point.coordinates[0], point.coordinates[1]
             raw_coordinates.append({"coordinates": [lng, lat]})
-            coordinate_names.append(gmaps.reverse_geocode((lat, lng), result_type="street_address")[0]["formatted_address"])
+            coordinate_names.append(
+                gmaps.reverse_geocode((lat, lng), result_type="street_address")[0][
+                    "formatted_address"
+                ]
+            )
         request_id = await add_request_row(person_id, raw_coordinates, coordinate_names)
         return {"request_id": request_id}
-    
+
     except ValueError as e:
         # Handle specific exceptions with a 400 Bad Request
         raise HTTPException(
