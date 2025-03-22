@@ -9,6 +9,9 @@ router = APIRouter()
 
 
 QUERY = "SELECT * FROM dispatcher_data WHERE rescuer_id = $1 AND rescued = false ORDER BY request_id ASC"
+DISPATCHER_QUERY = (
+    "SELECT * FROM dispatcher_data WHERE rescued = false ORDER BY request_id ASC"
+)
 # QUERY = (
 #     "SELECT * FROM test_table WHERE rescuer_id = $1 AND done = false ORDER BY id ASC"
 # )
@@ -101,7 +104,7 @@ async def handle_notification(connection, pid, channel, payload):
             return
 
         # Notify the old rescuer if they are connected
-        if old_rescuer_id:
+        if old_rescuer_id != "None":
             old_rows = await conn.fetch(
                 QUERY,
                 int(old_rescuer_id),
@@ -127,6 +130,17 @@ async def handle_notification(connection, pid, channel, payload):
                 )
             else:
                 await websocket_manager.send_to_user(rescuer_id, [])
+
+        dispatcher_rows = await conn.fetch(DISPATCHER_QUERY)
+        # print(f"All dispatcher rows: {dispatcher_rows}")
+        if dispatcher_rows:
+            await websocket_manager.send_to_user(
+                "0", [dict(row) for row in dispatcher_rows]
+            )
+
+        else:
+            await websocket_manager.send_to_user(0, [])
+
     finally:
         await conn.close()
 
