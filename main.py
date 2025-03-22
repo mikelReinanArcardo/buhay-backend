@@ -7,21 +7,17 @@ from routing.load_data import load_flooded_areas
 from tsp_endpoint import main_tsp
 from tests.naive_tsp import naive_tsp  # For testing
 
+from database_endpoints import convert_coordinates, login_endpoint
+
 from routing.route_directions import directions
 from models import DirectionsRequest
 from routing.cache_database import (
     connect_to_database,
     close_database_connection,
+    route_info,
+    update_rescued_boolean,
 )
-from models import Point
-from database_endpoints import (
-    login,
-    convert_coordinates,
-    add_request,
-    save_route,
-    get_route_info,
-    update_rescued
-)
+from models import Point, RouteInfo, UpdateRescued
 from qc_coordinates import check_point_in_polygon
 from own_websocket import own_socket
 
@@ -43,12 +39,8 @@ app = FastAPI(lifespan=startup_event)
 app.include_router(main_tsp.router)
 app.include_router(naive_tsp.router)  # For testing
 app.include_router(own_socket.router)
-app.include_router(login.router)
+app.include_router(login_endpoint.router)
 app.include_router(convert_coordinates.router)
-app.include_router(add_request.router)
-app.include_router(save_route.router)
-app.include_router(get_route_info.router)
-app.include_router(update_rescued.router)
 
 
 # app.include_router(route_directions.router)
@@ -75,3 +67,14 @@ async def test():
         json_data = json.load(f)
     return json_data
 
+
+@app.post("/get_route_info", status_code=status.HTTP_200_OK)
+async def get_route_info(route_id: RouteInfo):
+    data = await route_info(route_id.route_id)
+    return {"payload": data}
+
+
+@app.post("/update_rescued", status_code=status.HTTP_200_OK)
+async def update_rescued(request_id: UpdateRescued):
+    await update_rescued_boolean(request_id.request_id)
+    return {"message": "done"}
