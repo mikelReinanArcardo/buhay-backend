@@ -63,6 +63,16 @@ async def websocket_endpoint(websocket: WebSocket, user_id: str):
             else:
                 print(f"No rows found for user_id {user_id}")
                 await websocket_manager.send_to_user(user_id, [])
+
+            dispatcher_rows = await conn.fetch(DISPATCHER_QUERY)
+            # print(f"Initial dispatcher rows: {dispatcher_rows}")
+            if dispatcher_rows:
+                # print(f"Initial dispatcher rows")
+                for row in dispatcher_rows:
+                    await websocket_manager.send_to_user("0", dict(row))
+            else:
+                print(f"No dispatcher rows found")
+                await websocket_manager.send_to_user(0, [])
         finally:
             await conn.close()
 
