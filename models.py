@@ -37,6 +37,12 @@ class TSPinput(BaseModel):
     other_points: List[Point]
 
 
+class TSPOutput(BaseModel):
+    start: str
+    end: str
+    data: DirectionsResponse
+
+
 class LoginInput(BaseModel):
     username: str
     password: str
@@ -47,9 +53,18 @@ class AddRequestInput(BaseModel):
     coordinates: List[Point]
 
 
+class SaveRouteInput(BaseModel):
+    request_id: int
+    points: TSPinput
+
+
 class RouteInfo(BaseModel):
     route_id: int
 
 
 class UpdateRescued(BaseModel):
+    request_id: int
+
+
+class UpdateOngoing(BaseModel):
     request_id: int
