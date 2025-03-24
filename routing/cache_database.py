@@ -97,7 +97,6 @@ async def add_route_info_row(route_data: dict):
             )
     return route_id
 
-
 async def update_route_info_id(request_id: int, route_info_id: int):
     table = "dispatcher_data"
     async with connection_pool.acquire() as connection:
